@@ -3,8 +3,8 @@ package com.bbva.IntegradorJava.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import com.bbva.IntegradorJava.dtos.PolizaConSeguroDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,53 +15,47 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bbva.IntegradorJava.models.Poliza;
 import com.bbva.IntegradorJava.services.PolizasServices;
 
 @RestController
 @RequestMapping("/api")
 public class PolizasController {
-	
-	@Autowired
-	private PolizasServices ps;
-	
-	@GetMapping("/poliza")
-	public ResponseEntity<List<Poliza>> getAll() {
-		List<Poliza> list = ps.findAll();
-		return ResponseEntity.ok(list);
-	}
-	
-	@GetMapping("/poliza/{id}")
-	public ResponseEntity<Poliza> findById(@PathVariable Long id){
-		Optional<Poliza> poliza = ps.findById(id);
-        return poliza.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    
+    @Autowired
+    private PolizasServices ps;
 
-	}
-	
-	@PostMapping("/poliza/create")
-	public ResponseEntity<Poliza> createPoliza(@RequestBody Poliza poliza){
-		Poliza polizaCreated = ps.save(poliza);
-		return ResponseEntity.status(HttpStatus.CREATED).body(polizaCreated);
-		
-	}
-	
-	
-	
-	
-	
-	@PutMapping("/poliza/edit/{id}")
-	public ResponseEntity<Poliza> updatePoliza(@PathVariable Long id, @RequestBody Poliza polizaEdited) throws Exception {
-	    return ResponseEntity.ok(ps.edit(id, polizaEdited));
-	    
-	}
-	
-	
-	
-	
-	@DeleteMapping("/poliza/delete/{id}")
-	public ResponseEntity<Poliza> deletePoliza(@PathVariable Long id) throws Exception{
-		ps.deleteById(id);
-		return ResponseEntity.noContent().build();
-	}
- 
+    // Métodos GET
+    @GetMapping("/polizas/{id}")
+    public ResponseEntity<PolizaConSeguroDTO> obtenerPolizaConSeguroDTO(@PathVariable Long id) throws Exception {
+        Optional<PolizaConSeguroDTO> polizaConSeguroDTOOpt = ps.buscarPolizaConSeguroDTO(id);
+        
+        return polizaConSeguroDTOOpt
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/polizas")
+    public ResponseEntity<List<PolizaConSeguroDTO>> listarTodosConSeguro(){
+        return ResponseEntity.ok(ps.listarTodosConSeguro());
+    }
+
+    // Métodos POST
+    @PostMapping("/polizas")
+    public PolizaConSeguroDTO createPolizaConSeguroDTO(@RequestBody PolizaConSeguroDTO polizaConSeguroDTO) {
+        return ps.create(polizaConSeguroDTO);
+    }
+
+    // Métodos PUT
+    @PutMapping("/polizas/{id}")
+    public ResponseEntity<PolizaConSeguroDTO> updatePoliza(@PathVariable Long id, @RequestBody PolizaConSeguroDTO polizaConSeguroDTO) throws Exception {
+        PolizaConSeguroDTO updatedPoliza = ps.edit(id, polizaConSeguroDTO);
+        return ResponseEntity.ok(updatedPoliza);
+    }
+    
+    // Métodos DELETE
+    @DeleteMapping("/polizas/{id}")
+    public ResponseEntity<Void> deletePoliza(@PathVariable Long id) throws Exception {
+        ps.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

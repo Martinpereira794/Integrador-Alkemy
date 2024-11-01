@@ -3,6 +3,7 @@ package com.bbva.IntegradorJava.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import com.bbva.IntegradorJava.dtos.UserDTO;
 import com.bbva.IntegradorJava.models.Poliza;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,29 +22,36 @@ public class UserController {
 	private UserServices us;
 	
 	@GetMapping("/users")
-	public ResponseEntity<List<User>> getAll(){
-		List<User> list = us.findAll();
-		return ResponseEntity.ok(list);
-	}
-
-	@GetMapping("/users/{id}")
-	public ResponseEntity<User> findById(@PathVariable Long id){
-		Optional<User> user  = us.findById(id);
-		return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-	}
-	
-	@PostMapping("/users/create")
-	public ResponseEntity<User> createUser(@RequestBody User user){
-		User userCreated = us.save(user);
-		return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
+	public ResponseEntity<List<UserDTO>> findAllUserDTO(){
+		return ResponseEntity.ok(us.findAllUserDTO());
 		
 	}
 
-	@PutMapping("/user/edit/{id}")
+
+	@GetMapping("/users/{id}")
+	public ResponseEntity<UserDTO> findById(@PathVariable Long id) throws Exception{
+		UserDTO user  = us.buscarUserDTO(id);
+		return ResponseEntity.ok(user);
+	}
+	
+	@PostMapping("/users")
+	public UserDTO createUser(@RequestBody UserDTO userDTO){
+		return us.crear(userDTO);
+		
+	}
+
+	@PutMapping("/users/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userEditado) throws Exception{
 		return ResponseEntity.ok(us.edit(id, userEditado));
 	}
 
+	@DeleteMapping("/users/{id}")
+	public ResponseEntity<Void> deletePoliza(@PathVariable Long id) throws Exception {
+	    us.deleteById(id);
+	    return ResponseEntity.noContent().build();
+	}
+	
+	
 
 }
 

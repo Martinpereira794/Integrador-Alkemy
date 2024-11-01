@@ -17,11 +17,17 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name="Users")
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class User {
 	
 	@Id
@@ -38,9 +44,6 @@ public class User {
 	private String username;
 	
 	@NotNull
-	private String roles;
-	
-	@NotNull
     private String dni;
 	
 	@Email(message="El formato no es valido")
@@ -50,15 +53,26 @@ public class User {
     private String telefono;
 	
 	@NotNull
-    private String contraseña;
+    private String password;
 	
 	@NotNull
     private String pais;
+
+    @Column(name = "roles")
+    private String roles;
 	
     private boolean userActivo;
 
-    
-    
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Poliza> polizasAsociadas;
+
+    @Column(updatable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createdAt;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date updatedAt;
+
     
     
     public Long getId() {
@@ -85,6 +99,14 @@ public class User {
 		this.apellido = apellido;
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getDni() {
 		return dni;
 	}
@@ -109,12 +131,12 @@ public class User {
 		this.telefono = telefono;
 	}
 
-	public String getContraseña() {
-		return contraseña;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setContraseña(String contraseña) {
-		this.contraseña = contraseña;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getPais() {
@@ -123,6 +145,14 @@ public class User {
 
 	public void setPais(String pais) {
 		this.pais = pais;
+	}
+
+	public String getRoles() {
+		return roles;
+	}
+
+	public void setRoles(String roles) {
+		this.roles = roles;
 	}
 
 	public boolean isUserActivo() {
@@ -157,17 +187,7 @@ public class User {
 		this.updatedAt = updatedAt;
 	}
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Poliza> polizasAsociadas;
-
-    @Column(updatable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date createdAt;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date updatedAt;
-    
-    @PrePersist
+	@PrePersist
     protected void onCreate() {
         this.createdAt = new Date();
     }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bbva.IntegradorJava.dtos.SeguroDTO;
 import com.bbva.IntegradorJava.models.Seguro;
 import com.bbva.IntegradorJava.services.SeguroServices;
 
@@ -26,16 +27,20 @@ public class SeguroController {
 	private SeguroServices ss;
 	
 	@GetMapping("/seguros")
-	public ResponseEntity<List<Seguro>> findAll(){
+	public ResponseEntity<List<SeguroDTO>> findAll(){
 		return ResponseEntity.ok(ss.findAll());
 	}
 	
 	@GetMapping("/seguros/{id}")
-	public ResponseEntity<Seguro> findById(@PathVariable Long id){
-		Optional<Seguro> seguro = ss.findById(id);
-        return seguro.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-
+	public ResponseEntity<SeguroDTO> obtenerSeguroDTO(@PathVariable Long id) throws Exception {
+	    Optional<SeguroDTO> seguroDTOOpt = ss.buscarSeguroDTO(id); 
+	    return seguroDTOOpt.map(ResponseEntity::ok) 
+	                        .orElseGet(() -> ResponseEntity.notFound().build()); 
 	}
+
+	
+	
+	
 	
 	@PostMapping("/seguros/create")
 	public Seguro crearSeguro(@RequestBody Seguro seguro) {
